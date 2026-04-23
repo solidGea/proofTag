@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  barcode     String   @unique @db.VarChar(255)
+  productName String   @db.VarChar(500)
+  measure     String?  @db.VarChar(100)
+  rating      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  scanHistories ScanHistory[]
+  
+  @@index([barcode])
+}
+
+model ScanHistory {
+  id        Int      @id @default(autoincrement())
+  barcode   String   @db.VarChar(255)
+  found     Boolean  @default(false)
+  productId Int?
+  scannedAt DateTime @default(now())
+  
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  
+  @@index([barcode])
+  @@index([scannedAt])
+}
+
